@@ -2,51 +2,99 @@ import type {CSSProperties, ReactNode} from 'react';
 import {AbsoluteFill, Easing, interpolate, Sequence, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {ShahoKokuhoGuideData} from './data/shaho-kokuho-guide';
 
-const color = {blue: '#07559b', pale: '#edf6fd', red: '#c90916', ink: '#111827', yellow: '#ffe35b', line: '#b9d0e1'};
+const C = {navy: '#073d78', blue: '#0876c9', red: '#d41422', ink: '#101828', pale: '#eaf5ff', cream: '#fffaf0', yellow: '#ffd84d'};
 const font = '"Noto Sans JP", "Yu Gothic", sans-serif';
 
-const Scene = ({children, duration, chapter}: {children: ReactNode; duration: number; chapter?: string}) => {
+const pop = (frame: number, delay: number, fps: number) => spring({frame: frame - delay, fps, config: {damping: 14, stiffness: 145, mass: .7}});
+const Enter = ({children, delay = 0, x = 0, y = 36, style}: {children: ReactNode; delay?: number; x?: number; y?: number; style?: CSSProperties}) => {
+  const frame = useCurrentFrame(); const {fps} = useVideoConfig(); const p = pop(frame, delay, fps);
+  return <div style={{...style, opacity: p, transform: `translate3d(${(1-p)*x}px,${(1-p)*y}px,0) scale(${.92+p*.08})`}}>{children}</div>;
+};
+
+const World = ({children, dark = false}: {children: ReactNode; dark?: boolean}) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 10, duration - 10, duration], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  return <AbsoluteFill style={{fontFamily: font, color: color.ink, background: '#fff', opacity, overflow: 'hidden'}}>
-    <div style={{position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${color.pale} 0 18%, transparent 18% 82%, #e3f0fb 82%)`}} />
-    <div style={{position: 'absolute', left: 0, top: 0, bottom: 0, width: 22, background: color.blue}} />
-    <div style={{position: 'absolute', left: 50, right: 40, top: 44, bottom: 46, border: `3px solid ${color.line}`, borderRadius: 34, background: 'rgba(255,255,255,.94)', boxShadow: '0 18px 60px rgba(4,52,92,.13)'}} />
-    {chapter && <div style={{position: 'absolute', right: 0, top: 140, padding: '18px 22px 18px 30px', borderRadius: '28px 0 0 28px', background: color.blue, color: '#fff', fontSize: 28, fontWeight: 900, writingMode: 'vertical-rl', letterSpacing: 5}}>{chapter}</div>}
-    <div style={{position: 'absolute', inset: '95px 92px 80px 95px'}}>{children}</div>
+  return <AbsoluteFill style={{fontFamily: font, color: dark ? '#fff' : C.ink, background: dark ? C.navy : '#f8fbff', overflow: 'hidden'}}>
+    <div style={{position: 'absolute', inset: -100, opacity: dark ? .12 : .55, transform: `translate(${Math.sin(frame/35)*12}px,${Math.cos(frame/42)*10}px)`, backgroundImage: `radial-gradient(${dark ? '#fff' : '#b9dbf4'} 2px, transparent 2px)`, backgroundSize: '42px 42px'}}/>
+    <div style={{position: 'absolute', width: 650, height: 650, borderRadius: '50%', background: dark ? '#1687d8' : '#dff1ff', right: -280, top: -250, filter: 'blur(2px)'}}/>
+    {children}
   </AbsoluteFill>;
 };
+const Stage = ({children, kicker, dark = false}: {children: ReactNode; kicker?: string; dark?: boolean}) => <World dark={dark}>
+  <div style={{position: 'absolute', inset: '92px 70px 78px'}}>
+    {kicker && <Enter style={{fontSize: 27, fontWeight: 900, letterSpacing: 3, color: dark ? '#a9dcff' : C.blue}}><span style={{border: `2px solid ${dark ? '#4da9e9' : '#b8daf1'}`, borderRadius: 99, padding: '10px 20px', background: dark ? '#073567' : '#fff'}}>CHECK BEFORE QUITTING</span>　{kicker}</Enter>}
+    {children}
+  </div>
+  <div style={{position: 'absolute', left: 0, bottom: 0, height: 18, width: '100%', background: `linear-gradient(90deg,${C.blue} 0 68%,${C.red} 68%)`}}/>
+</World>;
 
-const In = ({children, delay = 0, style}: {children: ReactNode; delay?: number; style?: CSSProperties}) => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const p = spring({frame: frame - delay, fps, config: {damping: 15, stiffness: 120}});
-  return <div style={{...style, opacity: p, transform: `translateY(${(1 - p) * 45}px) scale(${.96 + p * .04})`}}>{children}</div>;
-};
+const Person = ({worried = false}: {worried?: boolean}) => <div style={{position: 'relative', width: 250, height: 300}}>
+  <div style={{position: 'absolute', left: 65, top: 10, width: 120, height: 120, borderRadius: '50%', background: '#ffd8b8', border: `8px solid ${C.ink}`}}/>
+  <div style={{position: 'absolute', left: 52, top: 0, width: 145, height: 62, borderRadius: '80px 80px 20px 20px', background: C.ink, transform: 'rotate(-6deg)'}}/>
+  <div style={{position: 'absolute', left: 91, top: 69, fontSize: 38, fontWeight: 900}}>{worried ? '︿' : '•‿•'}</div>
+  <div style={{position: 'absolute', left: 27, bottom: 0, width: 200, height: 160, borderRadius: '90px 90px 18px 18px', background: C.navy, border: '8px solid #102a4b'}}/>
+  {worried && <div style={{position: 'absolute', right: 2, top: 5, fontSize: 55, color: C.blue}}>💧</div>}
+</div>;
+const Owl = () => <div style={{fontSize: 150, filter: 'drop-shadow(0 16px 14px rgba(0,0,0,.15))'}}>🦉</div>;
+const Marker = ({children, red = false}: {children: ReactNode; red?: boolean}) => <span style={{position: 'relative', display: 'inline-block', color: red ? C.red : 'inherit', zIndex: 0}}><span style={{position: 'absolute', zIndex: -1, left: -5, right: -5, bottom: 5, height: 24, background: C.yellow, transform: 'rotate(-1deg)'}}/>{children}</span>;
 
-const Label = ({children, red = false}: {children: ReactNode; red?: boolean}) => <span style={{display: 'inline-block', background: red ? color.red : color.blue, color: '#fff', borderRadius: 12, padding: '10px 22px', fontSize: 34, fontWeight: 900}}>{children}</span>;
-const Underline = ({children}: {children: ReactNode}) => <span style={{position: 'relative', zIndex: 0}}><span style={{position: 'absolute', height: 20, left: -4, right: -4, bottom: 4, background: color.yellow, zIndex: -1}} />{children}</span>;
-const Icon = ({children, red = false}: {children: ReactNode; red?: boolean}) => <div style={{width: 126, height: 126, flex: '0 0 auto', display: 'grid', placeItems: 'center', borderRadius: 30, background: red ? '#fff0f1' : color.pale, border: `4px solid ${red ? color.red : color.blue}`, fontSize: 67}}>{children}</div>;
+const Hook = ({d}: {d: ShahoKokuhoGuideData}) => <Stage kicker="退職前の盲点">
+  <Enter delay={3} style={{marginTop: 110, fontSize: 51, fontWeight: 900}}>{d.hook.eyebrow}</Enter>
+  <Enter delay={14} x={-80} style={{marginTop: 80, fontSize: 100, fontWeight: 1000, lineHeight: 1.18, letterSpacing: -6, whiteSpace: 'pre-line'}}>{d.hook.title}</Enter>
+  <Enter delay={31} x={100} style={{fontSize: 133, fontWeight: 1000, color: C.red, lineHeight: 1.15}}><Marker red>{d.hook.focus}</Marker></Enter>
+  <Enter delay={47} style={{position: 'absolute', bottom: 100, left: 10}}><Person/></Enter>
+  <Enter delay={55} x={100} style={{position: 'absolute', right: 20, bottom: 130}}><div style={{padding: '35px 45px', border: `5px solid ${C.ink}`, borderRadius: 35, background: '#fff', fontSize: 42, fontWeight: 900}}>病院代だけ<br/>見てない？</div></Enter>
+</Stage>;
 
-const Opening = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={180} chapter="退職前"><In delay={4}><Label>{data.opening.label}</Label></In><In delay={15} style={{fontSize: 110, fontWeight: 1000, lineHeight: 1.15, whiteSpace: 'pre-line', letterSpacing: -7, marginTop: 150}}>{data.opening.title.split('国保').map((part, i) => <span key={part}>{i > 0 && <span style={{color: color.red}}>国保</span>}{part}</span>)}</In><In delay={38} style={{marginTop: 145, padding: '45px 40px', borderLeft: `14px solid ${color.red}`, background: color.pale, fontSize: 43, lineHeight: 1.65, fontWeight: 800, whiteSpace: 'pre-line'}}>{data.opening.subtitle}</In><div style={{position: 'absolute', bottom: 80, right: 10, fontSize: 160}}>🔍</div></Scene>;
+const Hospital = ({d}: {d: ShahoKokuhoGuideData}) => <Stage kicker="病院代は似て見える">
+  <Enter delay={4} style={{marginTop: 75, fontSize: 69, fontWeight: 1000}}>🏥　{d.hospital.title}</Enter>
+  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, marginTop: 85}}>{['社 保','国 保'].map((name,j)=><Enter key={name} delay={16+j*7} x={j ? 70 : -70} style={{background: '#fff', borderRadius: 32, boxShadow: '0 20px 50px #0c4f7b22', overflow: 'hidden', border: `4px solid ${j ? C.red : C.blue}`}}><div style={{background: j ? C.red : C.blue, color: '#fff', padding: 18, textAlign: 'center', fontSize: 43, fontWeight: 1000}}>{name}</div>{d.hospital.facts.map((f,i)=><div key={f} style={{padding: '29px 26px', fontSize: 32, fontWeight: 900, borderBottom: i<2 ? '2px dashed #c6d8e7' : undefined}}>✓ {f}</div>)}</Enter>)}</div>
+  <Enter delay={62} style={{marginTop: 92, padding: 34, borderRadius: 24, textAlign: 'center', background: C.cream, border: `4px solid ${C.yellow}`, fontSize: 44, fontWeight: 1000}}>💡 {d.hospital.insight}</Enter>
+</Stage>;
 
-const Medical = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={210} chapter="共通点"><In><Label>{data.medical.title}</Label></In><In delay={12} style={{display: 'flex', alignItems: 'center', gap: 32, marginTop: 90}}><Icon>🏥</Icon><div style={{fontSize: 59, fontWeight: 1000}}>国保でも病院には行ける</div></In><div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 25, marginTop: 100}}>{['社 保', '国 保'].map((name, i) => <In key={name} delay={25 + i * 8} style={{border: `4px solid ${i ? color.red : color.blue}`, borderRadius: 25, overflow: 'hidden'}}><div style={{textAlign: 'center', padding: 17, background: i ? color.red : color.blue, color: '#fff', fontSize: 42, fontWeight: 1000}}>{name}</div>{data.medical.shared.map(x => <div key={x} style={{padding: '29px 18px', fontSize: 33, fontWeight: 850}}>✓ {x}</div>)}</In>)}</div><In delay={65} style={{marginTop: 105, textAlign: 'center', fontSize: 43, fontWeight: 1000}}><Underline>{data.medical.message}</Underline></In></Scene>;
+const Pivot = ({d}: {d: ShahoKokuhoGuideData}) => {const frame=useCurrentFrame(); const zoom=interpolate(frame,[0,290],[1,1.08]); return <Stage dark kicker="視点を変える">
+  <div style={{position: 'absolute', inset: '170px 0 0', transform: `scale(${zoom})`}}>
+    <Enter delay={5} style={{fontSize: 57, fontWeight: 900, textAlign: 'center'}}>{d.pivot.question}</Enter>
+    <Enter delay={22} style={{fontSize: 230, lineHeight: 1.1, fontWeight: 1000, textAlign: 'center', color: C.yellow, textShadow: '8px 12px 0 #032a52'}}>{d.pivot.days}</Enter>
+    <Enter delay={43} style={{fontSize: 91, fontWeight: 1000, textAlign: 'center'}}>{d.pivot.answer}</Enter>
+    <Enter delay={70} style={{margin: '100px auto 0', width: 770, borderRadius: 30, padding: '42px 30px', background: '#fff', color: C.ink, textAlign: 'center', fontSize: 49, fontWeight: 1000, boxShadow: `14px 18px 0 ${C.red}`}}>差が出るのは<br/><span style={{color: C.red, fontSize: 63}}>「病院代」より「休んだ月」</span></Enter>
+    <Enter delay={105} style={{display: 'flex', justifyContent: 'center', marginTop: 80}}><Person worried/></Enter>
+  </div>
+</Stage>};
 
-const CompareBox = ({title, lines, red, delay}: {title: string; lines: string[]; red?: boolean; delay: number}) => <In delay={delay} style={{border: `4px solid ${red ? color.red : color.blue}`, borderRadius: 26, background: red ? '#fff6f6' : '#f5faff', overflow: 'hidden'}}><div style={{padding: 16, background: red ? color.red : color.blue, color: '#fff', textAlign: 'center', fontSize: 38, fontWeight: 1000}}>{title}</div>{lines.map((line, i) => <div key={line} style={{padding: '24px 24px 18px', fontSize: 31, lineHeight: 1.35, fontWeight: i ? 1000 : 750}}>• {line}</div>)}</In>;
+const Allowance = ({d}: {d: ShahoKokuhoGuideData}) => <Stage kicker="30日休んだ場合">
+  <Enter delay={3} style={{marginTop: 70, textAlign: 'center', fontSize: 39, fontWeight: 800, color: '#52667a'}}>{d.allowance.caption}</Enter>
+  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, marginTop: 55}}>
+    <Enter delay={12} x={-80} style={{height: 940, borderRadius: 34, background: C.navy, color: '#fff', padding: '38px 28px', boxShadow: '0 24px 60px #073d7840'}}><div style={{fontSize: 39, fontWeight: 1000}}>会社員の社保</div><div style={{fontSize: 78, marginTop: 55}}>🛡️</div><div style={{fontSize: 49, fontWeight: 1000, marginTop: 40}}>傷病手当金</div><div style={{height: 3, background: '#5aaae4', margin: '35px 0'}}/><div style={{fontSize: 39, fontWeight: 900}}>{d.allowance.daily}</div><div style={{marginTop: 70, fontSize: 54, lineHeight: 1.35, fontWeight: 1000, color: C.yellow}}>{d.allowance.monthly}</div></Enter>
+    <Enter delay={24} x={80} style={{height: 940, borderRadius: 34, background: '#fff', border: `6px solid ${C.red}`, padding: '38px 28px', boxShadow: '0 24px 60px #8d121c24'}}><div style={{fontSize: 39, fontWeight: 1000, color: C.red}}>国 保</div><div style={{fontSize: 78, marginTop: 55}}>🛑</div><div style={{marginTop: 45, fontSize: 47, lineHeight: 1.4, fontWeight: 1000, color: C.red}}>{d.allowance.national}</div><div style={{height: 3, background: '#f3c0c4', margin: '42px 0'}}/><div style={{fontSize: 42, lineHeight: 1.55, fontWeight: 900}}>休むと<br/><Marker red>収入が止まりやすい</Marker></div></Enter>
+  </div>
+  <Enter delay={70} style={{marginTop: 65, textAlign: 'center', fontSize: 47, fontWeight: 1000}}>見るべきは、<Marker>生活費を守れるか。</Marker></Enter>
+</Stage>;
 
-const Leave = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={300} chapter="差が出る所"><In><Label>{data.leave.title}</Label></In><In delay={10} style={{display: 'flex', alignItems: 'center', gap: 30, marginTop: 65}}><Icon>🤕</Icon><div><div style={{fontSize: 58, fontWeight: 1000}}>働けない月のお金</div><div style={{fontSize: 29, marginTop: 10}}>{data.leave.salaryExample}</div></div></In><div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 65}}><CompareBox title="会社員の社保" lines={data.leave.social} delay={24}/><CompareBox title="国 保" lines={data.leave.national} red delay={34}/></div><In delay={70} style={{marginTop: 75, border: `7px solid ${color.red}`, borderRadius: 25, padding: '40px 24px', textAlign: 'center', color: color.red, fontSize: 43, fontWeight: 1000, lineHeight: 1.45}}>{data.leave.message}</In></Scene>;
+const Company = ({d}: {d: ShahoKokuhoGuideData}) => <Stage kicker="もうひとつの見えない差">
+  <Enter delay={4} style={{marginTop: 85, fontSize: 78, fontWeight: 1000}}>{d.companyShare.title}</Enter>
+  <Enter delay={16} style={{marginTop: 55, borderRadius: 34, padding: '55px 45px', background: '#fff', border: `5px solid ${C.blue}`, boxShadow: '12px 16px 0 #b8dcf5'}}><div style={{fontSize: 37, fontWeight: 900, color: C.blue}}>会社員の社保</div><div style={{fontSize: 42, fontWeight: 900, marginTop: 22}}>{d.companyShare.social}</div><div style={{fontSize: 84, fontWeight: 1000, color: C.red, marginTop: 45}}>会社側だけで<br/>{d.companyShare.amount}</div></Enter>
+  <Enter delay={39} style={{marginTop: 45, display: 'flex', alignItems: 'center', gap: 30, borderRadius: 28, padding: '35px', background: '#fff0f1', border: `4px solid ${C.red}`}}><div style={{fontSize: 72}}>👤</div><div><b style={{fontSize: 36, color: C.red}}>国保</b><div style={{fontSize: 44, fontWeight: 1000}}>{d.companyShare.national}</div></div></Enter>
+  <Enter delay={65} style={{marginTop: 100, textAlign: 'center', fontSize: 45, fontWeight: 1000}}>🧾 {d.companyShare.note}</Enter>
+</Stage>;
 
-const Premium = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={210} chapter="会社負担"><In><Label>{data.premium.title}</Label></In><In delay={12} style={{textAlign: 'center', fontSize: 120, marginTop: 75}}>⚖️</In><div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 25, marginTop: 45}}><CompareBox title="社 保" lines={data.premium.social} delay={24}/><CompareBox title="国 保" lines={data.premium.national} red delay={34}/></div><In delay={64} style={{marginTop: 80, padding: 36, textAlign: 'center', background: color.pale, fontSize: 40, fontWeight: 1000, lineHeight: 1.55}}>給与明細だけでは、<br/><Underline>会社が払っていた分は見えにくい。</Underline></In></Scene>;
+const Checklist = ({d}: {d: ShahoKokuhoGuideData}) => <Stage kicker="退職届の前に">
+  <Enter delay={3} style={{marginTop: 65, fontSize: 77, fontWeight: 1000}}>見るのは、この<span style={{fontSize: 120, color: C.red}}>3</span>つ。</Enter>
+  <div style={{display: 'grid', gap: 26, marginTop: 55}}>{d.checklist.map((x,i)=><Enter key={x.label} delay={13+i*12} x={i%2 ? 65 : -65} style={{display: 'grid', gridTemplateColumns: '135px 1fr', minHeight: 300, background: '#fff', borderRadius: 30, overflow: 'hidden', boxShadow: '0 16px 42px #073d7820', border: '3px solid #d7e7f3'}}><div style={{background: i===2 ? C.red : C.navy, color: '#fff', display: 'grid', placeItems: 'center', fontSize: 52, fontWeight: 1000}}>{i+1}</div><div style={{padding: '28px 34px'}}><div style={{fontSize: 52, color: i===2 ? C.red : C.ink, fontWeight: 1000}}>{x.label}</div><div style={{marginTop: 18, fontSize: 29, fontWeight: 900}}><b style={{color:C.blue}}>社保</b>　{x.social}</div><div style={{marginTop: 15, borderTop: '2px dashed #c4d5e2', paddingTop: 15, fontSize: 29, fontWeight: 900}}><b style={{color:C.red}}>国保</b>　{x.national}</div></div></Enter>)}</div>
+</Stage>;
 
-const Checklist = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={270} chapter="結論"><In><Label>辞める前に見る、この3つ</Label></In><div style={{display: 'grid', gap: 30, marginTop: 75}}>{data.checklist.map((item, i) => <In key={item.number} delay={15 + i * 15} style={{display: 'grid', gridTemplateColumns: '100px 190px 1fr', border: `3px solid ${color.line}`, borderRadius: 24, overflow: 'hidden', minHeight: 230}}><div style={{display: 'grid', placeItems: 'center', background: color.blue, color: '#fff', fontSize: 44, fontWeight: 1000}}>{item.number}</div><div style={{display: 'grid', placeItems: 'center', color: color.red, fontSize: 51, fontWeight: 1000}}>{item.title}</div><div style={{padding: 29, fontSize: 28, lineHeight: 1.45, fontWeight: 800}}><span style={{color: color.blue}}>社保</span>：{item.social}<hr style={{border: 0, borderTop: `2px dashed ${color.line}`, margin: '18px 0'}}/><span style={{color: color.red}}>国保</span>：{item.national}</div></In>)}</div></Scene>;
-
-const Ending = ({data}: {data: ShahoKokuhoGuideData}) => <Scene duration={180}><In delay={4} style={{fontSize: 62, fontWeight: 1000, marginTop: 100}}>{data.ending.lead}</In><In delay={18} style={{fontSize: 82, lineHeight: 1.25, color: color.red, fontWeight: 1000, marginTop: 55}}>{data.ending.emphasis}</In><In delay={38} style={{marginTop: 150, padding: '55px 38px', border: `7px solid ${color.red}`, borderRadius: 28, fontSize: 51, lineHeight: 1.5, fontWeight: 1000, textAlign: 'center'}}>🛡️<br/>{data.ending.action}</In><In delay={65} style={{marginTop: 150, borderRadius: 18, background: color.blue, color: '#fff', padding: 25, fontSize: 24, lineHeight: 1.55}}>{data.ending.note}</In></Scene>;
+const Conclusion = ({d}: {d: ShahoKokuhoGuideData}) => <Stage dark>
+  <Enter delay={2} style={{marginTop: 120, fontSize: 54, fontWeight: 900}}>{d.conclusion.lead}</Enter>
+  <Enter delay={12} style={{marginTop: 55, fontSize: 70, lineHeight: 1.5, fontWeight: 1000, whiteSpace: 'pre-line'}}>{d.conclusion.main}</Enter>
+  <Enter delay={28} style={{marginTop: 110, borderRadius: 30, padding: '48px 30px', background: C.red, textAlign: 'center', fontSize: 48, lineHeight: 1.5, fontWeight: 1000}}>🛡️　{d.conclusion.action}</Enter>
+  <Enter delay={48} style={{marginTop: 95, fontSize: 24, color: '#bfdbef', textAlign: 'center'}}>{d.conclusion.note}</Enter>
+</Stage>;
 
 export const ShahoKokuhoDifferenceGuide = ({data}: {data: ShahoKokuhoGuideData}) => <AbsoluteFill>
-  <Sequence durationInFrames={180}><Opening data={data}/></Sequence>
-  <Sequence from={180} durationInFrames={210}><Medical data={data}/></Sequence>
-  <Sequence from={390} durationInFrames={300}><Leave data={data}/></Sequence>
-  <Sequence from={690} durationInFrames={210}><Premium data={data}/></Sequence>
-  <Sequence from={900} durationInFrames={270}><Checklist data={data}/></Sequence>
-  <Sequence from={1170} durationInFrames={180}><Ending data={data}/></Sequence>
+  <Sequence durationInFrames={120}><Hook d={data}/></Sequence>
+  <Sequence from={120} durationInFrames={180}><Hospital d={data}/></Sequence>
+  <Sequence from={300} durationInFrames={300}><Pivot d={data}/></Sequence>
+  <Sequence from={600} durationInFrames={240}><Allowance d={data}/></Sequence>
+  <Sequence from={840} durationInFrames={180}><Company d={data}/></Sequence>
+  <Sequence from={1020} durationInFrames={210}><Checklist d={data}/></Sequence>
+  <Sequence from={1230} durationInFrames={120}><Conclusion d={data}/></Sequence>
 </AbsoluteFill>;

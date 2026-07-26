@@ -15,7 +15,7 @@ Studioには次の3本が表示されます。既存の2本は変更せず、そ
 
 - `InsuranceShort` — 既存の入院保険ショート（30秒）
 - `TaishokuShakaihokenKokuhou3D` — 退職前の社会保険／国民健康保険解説（40秒）
-- `ShahoKokuhoDifferenceGuide` — 社保と国保の3つの違いを整理する新作ガイド（45秒）
+- `ShahoKokuhoDifferenceGuide` — 病院代より「休んだ月」に焦点を当てた本命版ガイド（45秒）
 
 ## MP4を書き出す
 
@@ -33,13 +33,17 @@ npm run render:retirement
 
 完成ファイルは `out/taishoku-shakaihoken-kokuhou-3d.mp4` に出力されます。
 
-新作ガイドを書き出す場合は、次を実行します。
+本命版ガイドを書き出す場合は、次を実行します。
 
 ```bash
 npm run render:guide
 ```
 
 完成ファイルは `out/shaho-kokuho-difference-guide.mp4` に出力されます。
+
+本命版ガイドの文言や概算値は `src/data/shaho-kokuho-guide.ts` の
+`shahoKokuhoGuideData` に集約しています。演出を変えずに、導入、病院利用の共通点、
+30日休業、傷病手当金、会社負担、3つの確認項目、結論を差し替えられます。
 
 ## 別テーマへ差し替える
 
