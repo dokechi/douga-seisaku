@@ -40,6 +40,6 @@ npm run render:retirement
 
 ## 退職前制度解説を別テーマへ差し替える
 
-新動画の文言・比較内容・チェック項目は `src/data/retirement-insurance.ts` の `retirementInsuranceData` に集約しています。見出し、病院利用の前提、本題転換、30日比較、3つの確認カード、結論をデータだけで差し替えられます。
+新動画の文言・比較内容・チェック項目は `src/data/retirement-insurance.ts` の `retirementInsuranceData` に集約しています。見出し、病院利用の前提、本題転換、30日比較、比較後の一言、3つの確認カード、会社負担への注意、結論までをデータだけで差し替えられます。`comparison.days` はカレンダーの表示日数にも反映されます。
 
-演出は `src/RetirementInsuranceComic3D.tsx`、再利用できる3D風パネルとアイコンは `src/components/comic3d/` にあります。尺を変える場合は `src/Root.tsx` の1200フレームと、動画コンポーネント末尾の各 `Sequence` を合わせて変更してください。
+演出は `src/RetirementInsuranceComic3D.tsx`、再利用できる3D風パネルとアイコンは `src/components/comic3d/` にあります。各シーンには読みやすさを保つフェード、緩やかなカメラの引き、前後レイヤーを共通適用しています。尺を変える場合は `src/Root.tsx` の1200フレーム、動画コンポーネント末尾の各 `Sequence`、各 `Stage` の `duration` を合わせて変更してください。

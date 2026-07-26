@@ -1,15 +1,18 @@
 export type RetirementInsuranceData = {
   hook: {eyebrow: string; title: string; sub: string};
-  hospital: {title: string; facts: string[]; note: string};
-  pivot: {from: string; to: string; lead: string};
+  hospital: {kicker: string; title: string; facts: string[]; note: string};
+  pivot: {from: string; to: string; lead: string; punchline: string};
   comparison: {
     title: string;
     days: number;
     social: {name: string; badge: string; lines: string[]};
     national: {name: string; badge: string; lines: string[]};
+    takeaway: string;
     disclaimer: string;
   };
+  checklistTitle: string;
   checklist: Array<{number: string; title: string; detail: string; icon: 'family' | 'bill' | 'calendar'}>;
+  checklistOutro: {lead: string; accent: string};
   conclusion: {lead: string; accent: string; final: string};
 };
 
@@ -21,23 +24,27 @@ export const retirementInsuranceData: RetirementInsuranceData = {
     sub: '次の給料だけ見て辞めると、あとで地味に痛い。',
   },
   hospital: {
+    kicker: '病院代だけなら',
     title: '国保でも、病院には行ける。',
     facts: ['医療費は原則3割負担', '高額療養費制度もある'],
     note: 'ここだけ見ると、差は見えにくい。',
   },
-  pivot: {from: '病院代', to: '休んだ月', lead: '本当に差が出るのは'},
+  pivot: {from: '病院代', to: '休んだ月', lead: '本当に差が出るのは', punchline: '病院代より\n「休んだ月」'},
   comparison: {
     title: 'もし、病気やケガで30日休んだら？',
     days: 30,
     social: {name: '会社の健康保険', badge: '社保', lines: ['傷病手当金が', '入る可能性']},
     national: {name: '国民健康保険', badge: '国保', lines: ['傷病手当金は', '原則なし']},
+    takeaway: '収入の差が、生活の差になる。',
     disclaimer: '※支給には条件があります。国保でも自治体等による例外があります。',
   },
+  checklistTitle: '辞める前に見るのは、この3つ',
   checklist: [
     {number: '01', title: '扶養', detail: '家族分も含めて確認', icon: 'family'},
     {number: '02', title: '保険料', detail: '会社が払っていた分も見る', icon: 'bill'},
     {number: '03', title: '休んだ月', detail: '収入を守る制度を確認', icon: 'calendar'},
   ],
+  checklistOutro: {lead: '会社が払っていた分も、', accent: '退職後は自分ごと。'},
   conclusion: {
     lead: '社保の強さは、\n病院に行けることより',
     accent: '生活が崩れにくいこと。',
