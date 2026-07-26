@@ -11,10 +11,11 @@ npm run dev
 
 Remotion Studioで `InsuranceShort` を選ぶとプレビューできます。
 
-Studioには次の2本が表示されます。既存の `InsuranceShort` は変更せず、そのまま残しています。
+Studioには次の3本が表示されます。既存の2本は変更せず、そのまま残しています。
 
 - `InsuranceShort` — 既存の入院保険ショート（30秒）
 - `TaishokuShakaihokenKokuhou3D` — 退職前の社会保険／国民健康保険解説（40秒）
+- `ShahoKokuhoDifferenceGuide` — 社保と国保の3つの違いを整理する新作ガイド（45秒）
 
 ## MP4を書き出す
 
@@ -31,6 +32,14 @@ npm run render:retirement
 ```
 
 完成ファイルは `out/taishoku-shakaihoken-kokuhou-3d.mp4` に出力されます。
+
+新作ガイドを書き出す場合は、次を実行します。
+
+```bash
+npm run render:guide
+```
+
+完成ファイルは `out/shaho-kokuho-difference-guide.mp4` に出力されます。
 
 ## 別テーマへ差し替える
 
