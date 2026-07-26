@@ -6,6 +6,7 @@
     "dev": "remotion studio src/index.ts",
     "preview": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts InsuranceShort out/insurance-short.mp4",
+    "render:retirement": "remotion render src/index.ts TaishokuShakaihokenKokuhou3D out/taishoku-shakaihoken-kokuhou-3d.mp4",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
