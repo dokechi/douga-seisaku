@@ -9,5 +9,5 @@ import {shahoKokuhoGuideData} from './data/shaho-kokuho-guide';
 export const RemotionRoot = () => <>
   <Composition id="InsuranceShort" component={MainVideo} durationInFrames={900} fps={30} width={1080} height={1920} defaultProps={{data: insuranceSample}} />
   <Composition id="TaishokuShakaihokenKokuhou3D" component={RetirementInsuranceComic3D} durationInFrames={1200} fps={30} width={1080} height={1920} defaultProps={{data: retirementInsuranceData}} />
-  <Composition id="ShahoKokuhoDifferenceGuide" component={ShahoKokuhoDifferenceGuide} durationInFrames={1350} fps={30} width={1080} height={1920} defaultProps={{data: shahoKokuhoGuideData}} />
+  <Composition id="ShahoKokuhoDifferenceGuide" component={ShahoKokuhoDifferenceGuide} durationInFrames={1020} fps={30} width={1080} height={1920} defaultProps={{data: shahoKokuhoGuideData}} />
 </>;
